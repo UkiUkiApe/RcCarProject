@@ -10,17 +10,20 @@ class RcCarControllerImpl(
     private val serializer: CommandSerializer
 ) : RcCarController {
 
-    override fun connect() {
+    override fun connect(): Boolean {
         transport.connect()
+        return true
     }
 
-    override fun disconnect() {
+    override fun disconnect(): Boolean {
         transport.disconnect()
+        return true
     }
 
-    override fun sendCommand(command: Command) {
+    override fun sendCommand(command: Command): Boolean {
         val bytes = serializer.serialize(command)
         transport.send(bytes)
+        return true
     }
 
     override fun setSpeed(speed: Int) {

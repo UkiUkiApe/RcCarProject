@@ -1,5 +1,6 @@
 package com.example.rccarcontroller.Activity
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,20 +18,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rccarcontroller.Activity.Components.CarStatusSection
 import com.example.rccarcontroller.Activity.Components.ConnectionState
-import com.example.rccarcontroller.Presentation.ViewModel.RcCarControllerViewModel
 import com.example.rccarcontroller.ui.theme.RcCarControllerTheme
 import com.example.rccarcontroller.Activity.Components.ConnectionStatusSection
+import com.example.rccarcontroller.Presentation.ViewModel.ControllerViewModel
+import com.example.rccarcontroller.Presentation.ViewModel.Factory.ControllerViewModelFactory
 import com.example.rccarcontroller.ui.components.ControllerPadSection
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: RcCarControllerViewModel.ControllerViewModel by viewModels()
+    private val bluetoothPermissions = arrayOf(
+        // UIから権限要求をかける必要がある
+        android.Manifest.permission.BLUETOOTH_CONNECT
+    )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private val REQUEST_BLUETOOTH = 1001
+    // この部分はMainActivity(エントリポイント)
+    private val viewModel: ControllerViewModel by viewModels {
+        // UI ⇔ ViewModel の境界面(依存性を注入している)
+        ControllerViewModelFactory(this)
+    }
+
+
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+        // この部分はUIの初期化処理を行う箇所である(はじめに一回だけ呼ばれる)
         super.onCreate(savedInstanceState)
+        ensureBluetoothPermission()
         enableEdgeToEdge()
 
         setContent {
+            // ここで実際にUIの初期化処理を行う
             RcCarControllerTheme {
 
                 val connectionState by viewModel.connectionState.collectAsState()
@@ -57,7 +74,36 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    // ③ ensureBluetoothPermission はフィールドを使う
+    private fun ensureBluetoothPermission(): Boolean {
+        val granted = bluetoothPermissions.all {
+            checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        if (!granted) {
+            requestPermissions(bluetoothPermissions, REQUEST_BLUETOOTH)
+        }
+
+        return granted
+    }
+
+    // ④ 権限結果の受け取り
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == REQUEST_BLUETOOTH) {
+            val granted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            if (!granted) {
+                // 権限がないと Bluetooth が使えないので UI に通知する
+            }
+        }
+    }
 }
+
 
 
 @Composable
