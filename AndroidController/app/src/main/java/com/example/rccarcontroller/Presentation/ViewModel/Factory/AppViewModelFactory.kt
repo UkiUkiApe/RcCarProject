@@ -13,6 +13,38 @@ import com.example.rccarcontroller.InfraStructure.Logger.LogcatLogger
 import com.example.rccarcontroller.Presentation.ViewModel.ConnectionViewModel
 import com.example.rccarcontroller.Presentation.ViewModel.ControllerViewModel
 
+/**
+ * アプリ全体で利用する ViewModel を生成するための Factory。
+ *
+ * Clean Architecture における Presentation 層と Data 層の境界として機能し、
+ * ControllerRepository や Logger をアプリ内で 1 つだけ生成して共有することで、
+ * BluetoothClient の二重生成や二重接続を防ぎ、通信状態を UI と正しく同期させる。
+ *
+ * <p>
+ * 【役割】
+ * - Logger（CompositeLogger）を 1 回だけ生成し、Logcat とファイル出力を統合する
+ * - BluetoothConfigRepository と BluetoothDeviceResolver を初期化し、
+ *   ControllerRepositoryImpl を Singleton として構築する
+ * - Repository を利用して UseCase（ControllerUseCaseImpl）を生成する
+ * - ControllerViewModel と ConnectionViewModel に同じ Repository / Logger を注入し、
+ *   UI が一貫した通信状態を購読できるようにする
+ *
+ * <p>
+ * 【設計意図】
+ * - ViewModelFactory を統合し、通信基盤（Repository / BluetoothClient）を 1 つに集約する
+ * - ControllerViewModel と ConnectionViewModel が同じ Repository を共有することで、
+ *   接続状態・再接続状態・ログ出力がすべて一致するようにする
+ * - Factory が依存性注入の中心となり、UI が Bluetooth の初期化手順を一切知らずに済むようにする
+ *
+ * <p>
+ * 【生成される ViewModel】
+ * - ControllerViewModel：RCカー操作（前進・後退・速度変更など）を担当
+ * - ConnectionViewModel：接続状態・再接続状態を UI に公開する
+ *
+ * @see com.example.rccarcontroller.Presentation.ViewModel.ControllerViewModel
+ * @see com.example.rccarcontroller.Presentation.ViewModel.ConnectionViewModel
+ * @see com.example.rccarcontroller.Data.Controller.ControllerRepositoryImpl
+ */
 class AppViewModelFactory(
     private val context: Context
 ) : ViewModelProvider.Factory {

@@ -32,6 +32,38 @@ import com.example.rccarcontroller.Presentation.ViewModel.Factory.ConnectionView
 import com.example.rccarcontroller.Presentation.ViewModel.Factory.ControllerViewModelFactory
 import com.example.rccarcontroller.ui.components.ControllerPadSection
 
+
+/**
+ * RCカー制御アプリケーションのエントリポイントとなる Activity。
+ *
+ * Clean Architecture における Presentation 層の初期化を担当し、
+ * AppViewModelFactory を用いて ControllerViewModel と ConnectionViewModel を生成することで、
+ * UI と通信基盤（Repository / UseCase / BluetoothClient）を接続する役割を持つ。
+ *
+ * <p>
+ * 【役割】
+ * - Bluetooth 接続に必要な権限（BLUETOOTH_CONNECT）の確認と要求を行う
+ * - AppViewModelFactory を利用して依存性注入を行い、通信基盤をアプリ内で 1 つに統合する
+ * - Compose による UI のルート画面（ControllerScreen）を構築する
+ * - ViewModel が公開する StateFlow（接続状態・再接続状態・車体ステータス）を UI に反映する
+ *
+ * <p>
+ * 【設計意図】
+ * - Activity は UI 初期化と権限処理に限定し、通信ロジックを一切持たない
+ * - ViewModelFactory に依存性注入を集約することで、MainActivity の責務を最小化する
+ * - UI は ViewModel を通じて Repository の状態を購読し、Bluetooth の詳細を知らずに済む
+ *
+ * <p>
+ * 【UI 構成】
+ * - ConnectionStatusSection：接続状態と接続／切断ボタン
+ * - CarStatusSection：速度・バッテリー・温度などの車体ステータス
+ * - ControllerPadSection：前進・後退・左右・停止・速度変更の操作パッド
+ * - Snackbar：再接続中／再接続失敗の通知
+ *
+ * @see com.example.rccarcontroller.Presentation.ViewModel.Factory.AppViewModelFactory
+ * @see com.example.rccarcontroller.Presentation.ViewModel.ControllerViewModel
+ * @see com.example.rccarcontroller.Presentation.ViewModel.ConnectionViewModel
+ */
 class MainActivity : ComponentActivity() {
 
     private val bluetoothPermissions = arrayOf(
