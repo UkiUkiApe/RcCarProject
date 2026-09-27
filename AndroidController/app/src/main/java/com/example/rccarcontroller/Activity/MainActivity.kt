@@ -27,6 +27,7 @@ import com.example.rccarcontroller.Activity.Components.ConnectionStatusSection
 import com.example.rccarcontroller.Domain.Model.ReconnectState
 import com.example.rccarcontroller.Presentation.ViewModel.ConnectionViewModel
 import com.example.rccarcontroller.Presentation.ViewModel.ControllerViewModel
+import com.example.rccarcontroller.Presentation.ViewModel.Factory.AppViewModelFactory
 import com.example.rccarcontroller.Presentation.ViewModel.Factory.ConnectionViewModelFactory
 import com.example.rccarcontroller.Presentation.ViewModel.Factory.ControllerViewModelFactory
 import com.example.rccarcontroller.ui.components.ControllerPadSection
@@ -42,15 +43,10 @@ class MainActivity : ComponentActivity() {
 
     private val REQUEST_BLUETOOTH = 1001
     // この部分はMainActivity(エントリポイント)
-    private val controllerViewModel: ControllerViewModel by viewModels {
-        // UI ⇔ ViewModel の境界面(依存性を注入している)
-        ControllerViewModelFactory(this)
-    }
+    private val appFactory by lazy { AppViewModelFactory(this) }
 
-    private val connectionViewModel: ConnectionViewModel by viewModels {
-        ConnectionViewModelFactory(this)
-    }
-
+    private val controllerViewModel: ControllerViewModel by viewModels { appFactory }
+    private val connectionViewModel: ConnectionViewModel by viewModels { appFactory }
 
 
     override fun onCreate(savedInstanceState: Bundle?)
