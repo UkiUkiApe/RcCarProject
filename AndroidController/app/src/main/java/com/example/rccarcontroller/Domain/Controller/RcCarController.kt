@@ -19,8 +19,8 @@ import com.example.rccarcontroller.Domain.Model.Command
  * 上位層（UseCase / ViewModel / UI）が通信方式に依存しない設計を実現する。
  */
 interface RcCarController {
-    fun connect(): Boolean
-    fun disconnect(): Boolean
-    fun sendCommand(command: Command): Boolean
-    fun setSpeed(speed: Int)
+    suspend fun connect(): Boolean
+    suspend fun disconnect(): Boolean
+    suspend fun sendCommand(command: Command): Boolean
+    suspend fun setSpeed(speed: Int)
 }

@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,7 +24,10 @@ import com.example.rccarcontroller.Activity.Components.CarStatusSection
 import com.example.rccarcontroller.Activity.Components.ConnectionState
 import com.example.rccarcontroller.ui.theme.RcCarControllerTheme
 import com.example.rccarcontroller.Activity.Components.ConnectionStatusSection
+import com.example.rccarcontroller.Domain.Model.ReconnectState
+import com.example.rccarcontroller.Presentation.ViewModel.ConnectionViewModel
 import com.example.rccarcontroller.Presentation.ViewModel.ControllerViewModel
+import com.example.rccarcontroller.Presentation.ViewModel.Factory.ConnectionViewModelFactory
 import com.example.rccarcontroller.Presentation.ViewModel.Factory.ControllerViewModelFactory
 import com.example.rccarcontroller.ui.components.ControllerPadSection
 
@@ -31,12 +38,19 @@ class MainActivity : ComponentActivity() {
         android.Manifest.permission.BLUETOOTH_CONNECT
     )
 
+
+
     private val REQUEST_BLUETOOTH = 1001
     // この部分はMainActivity(エントリポイント)
-    private val viewModel: ControllerViewModel by viewModels {
+    private val controllerViewModel: ControllerViewModel by viewModels {
         // UI ⇔ ViewModel の境界面(依存性を注入している)
         ControllerViewModelFactory(this)
     }
+
+    private val connectionViewModel: ConnectionViewModel by viewModels {
+        ConnectionViewModelFactory(this)
+    }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?)
@@ -50,11 +64,12 @@ class MainActivity : ComponentActivity() {
             // ここで実際にUIの初期化処理を行う
             RcCarControllerTheme {
 
-                val connectionState by viewModel.connectionState.collectAsState()
-                val speed by viewModel.speed.collectAsState()
-                val battery by viewModel.batteryLevel.collectAsState()
-                val temperature by viewModel.temperature.collectAsState()
-                val errorCode by viewModel.errorCode.collectAsState()
+                val reconnectState by connectionViewModel.reconnectState.collectAsState()
+                val connectionState by connectionViewModel.connectionState.collectAsState()
+                val speed by controllerViewModel.speed.collectAsState()
+                val battery by controllerViewModel.batteryLevel.collectAsState()
+                val temperature by controllerViewModel.temperature.collectAsState()
+                val errorCode by controllerViewModel.errorCode.collectAsState()
 
                 ControllerScreen(
                     connectionState = connectionState,
@@ -62,14 +77,15 @@ class MainActivity : ComponentActivity() {
                     battery = battery,
                     temperature = temperature,
                     errorCode = errorCode,
-                    onConnect = { viewModel.connect() },
-                    onDisconnect = { viewModel.disconnect() },
-                    onForward = { viewModel.moveForward() },
-                    onBackward = { viewModel.moveBackward() },
-                    onLeft = { viewModel.turnLeft() },
-                    onRight = { viewModel.turnRight() },
-                    onStop = { viewModel.stop() },
-                    onSpeedChange = { viewModel.setSpeed(it) }
+                    reconnectState = reconnectState,
+                    onConnect = { controllerViewModel.connect() },
+                    onDisconnect = { controllerViewModel.disconnect() },
+                    onForward = { controllerViewModel.moveForward() },
+                    onBackward = { controllerViewModel.moveBackward() },
+                    onLeft = { controllerViewModel.turnLeft() },
+                    onRight = { controllerViewModel.turnRight() },
+                    onStop = { controllerViewModel.stop() },
+                    onSpeedChange = { controllerViewModel.setSpeed(it) }
                 )
             }
         }
@@ -114,6 +130,7 @@ fun ControllerScreen(
     battery: Int?,
     temperature: Float?,
     errorCode: Int?,
+    reconnectState: ReconnectState,
     onConnect: () -> Unit,
     onDisconnect: () -> Unit,
     onForward: () -> Unit,
@@ -123,12 +140,27 @@ fun ControllerScreen(
     onStop: () -> Unit,
     onSpeedChange: (Int) -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(reconnectState) {
+        when (reconnectState) {
+            ReconnectState.RECONNECTING ->
+                snackbarHostState.showSnackbar("再接続中です…")
+
+            ReconnectState.FAILED ->
+                snackbarHostState.showSnackbar("再接続に失敗しました")
+
+            else -> Unit
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
+        SnackbarHost(hostState = snackbarHostState)
 
         // 通信状態表示部の組み立て
         ConnectionStatusSection(
@@ -171,6 +203,7 @@ fun ControllerScreenPreview() {
             temperature = 32.5f,
             errorCode = null,
             onConnect = {},
+            reconnectState = ReconnectState.IDLE,
             onDisconnect = {},
             onForward = {},
             onBackward = {},
@@ -180,4 +213,16 @@ fun ControllerScreenPreview() {
             onSpeedChange = {}
         )
     }
+}
+
+@Preview
+@Composable
+fun SnackbarPreview() {
+    val hostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        hostState.showSnackbar("プレビュー用 Snackbar")
+    }
+
+    SnackbarHost(hostState = hostState)
 }

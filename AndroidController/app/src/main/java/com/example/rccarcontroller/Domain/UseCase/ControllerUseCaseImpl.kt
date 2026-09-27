@@ -29,7 +29,7 @@ class ControllerUseCaseImpl(
     private val logger: Logger
 ) : ControllerUseCase {
 
-    override fun connect(): Result<Unit> {
+    override suspend fun connect(): Result<Unit> {
         logger.info("UseCase connect() called")
 
         // Repositoryを介して通信を接続しにいく
@@ -40,7 +40,7 @@ class ControllerUseCaseImpl(
         else Result.failure(Exception("Connection failed"))
     }
 
-    override fun disconnect(): Result<Unit> {
+    override suspend fun disconnect(): Result<Unit> {
         Log.d("UseCase", "disconnect() called")
 
         // Repositoryを介して通信を切断しにいく
@@ -51,7 +51,7 @@ class ControllerUseCaseImpl(
         else Result.failure(Exception("Disconnect failed"))
     }
 
-    override fun send(command: Command): Result<Unit> {
+    override suspend fun send(command: Command): Result<Unit> {
         logger.info("UseCase send() called: command=$command")
 
         // Repositoryを介してCommandを送信しにいく

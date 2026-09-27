@@ -1,8 +1,8 @@
 package com.example.rccarcontroller.Data.Bluetooth
 
 import android.content.Context
-import android.util.Log
 import com.example.rccarcontroller.Domain.Model.BluetoothConfig
+import com.example.rccarcontroller.Domain.Model.ReconnectConfig
 import com.example.rccarcontroller.InfraStructure.Logger.Logger
 import org.json.JSONObject
 import java.util.UUID
@@ -47,11 +47,21 @@ class BluetoothConfigRepository(
         val deviceName = obj.getString("deviceName")
         val uuid = obj.getString("uuid")
 
-        logger.info("Config: Parsed config: deviceName=$deviceName, uuid=$uuid")
+        val reconnectObj = obj.getJSONObject("reconnect")
+        val reconnect = ReconnectConfig(
+            enabled = reconnectObj.getBoolean("enabled"),
+            maxRetries = reconnectObj.getInt("maxRetries"),
+            initialDelayMs = reconnectObj.getLong("initialDelayMs"),
+            backoffFactor = reconnectObj.getInt("backoffFactor")
+        )
+
+        logger.info("Config: Parsed config: " +
+                "deviceName=$deviceName, uuid=$uuid, reconnect=$reconnect")
 
         return BluetoothConfig(
             deviceName = deviceName,
-            uuid = UUID.fromString(uuid)
+            uuid = UUID.fromString(uuid),
+            reconnect = reconnect
         )
     }
 }

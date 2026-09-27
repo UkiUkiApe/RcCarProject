@@ -20,7 +20,7 @@ package com.example.rccarcontroller.InfraStructure.Bluetooth
  * 上位層に影響しない柔軟な設計を実現している。
  */
 interface BluetoothTransport {
-    fun connect()
-    fun disconnect()
-    fun send(bytes: ByteArray)
+    suspend fun connect()
+    suspend fun disconnect()
+    suspend fun send(bytes: ByteArray)
 }

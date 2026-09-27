@@ -31,20 +31,20 @@ class RcCarControllerImpl(
     private val serializer: CommandSerializer
 ) : RcCarController {
 
-    override fun connect(): Boolean {
+    override suspend fun connect(): Boolean {
         Log.d("Controller", "connect() called")
         transport.connect()
         Log.d("Controller", "connect() finished")
         return true
     }
 
-    override fun disconnect(): Boolean {
+    override suspend fun disconnect(): Boolean {
         Log.d("Controller", "disconnect() called")
         transport.disconnect()
         Log.d("Controller", "disconnect() finished")
         return true
     }
-    override fun sendCommand(command: Command): Boolean {
+    override suspend fun sendCommand(command: Command): Boolean {
         Log.d("Controller", "sendCommand() called: command=$command")
 
         val bytes = serializer.serialize(command)
@@ -56,7 +56,7 @@ class RcCarControllerImpl(
         return true
     }
 
-    override fun setSpeed(speed: Int) {
+    override suspend fun setSpeed(speed: Int) {
         Log.d("Controller", "setSpeed() called: speed=$speed")
         sendCommand(Command.Speed(speed))
     }

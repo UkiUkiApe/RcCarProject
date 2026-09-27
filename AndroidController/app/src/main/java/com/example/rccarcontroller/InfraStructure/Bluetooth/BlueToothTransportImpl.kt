@@ -3,6 +3,8 @@ package com.example.rccarcontroller.InfraStructure.Bluetooth
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.util.Log
+import com.example.rccarcontroller.InfraStructure.Client.BluetoothClient
+import com.example.rccarcontroller.InfraStructure.Client.ConnectionTarget
 import java.util.UUID
 
 /**
@@ -27,43 +29,20 @@ import java.util.UUID
  * @param uuid 通信に使用する RFCOMM/SPP の UUID
  */
 class BluetoothTransportImpl(
-    private val device: BluetoothDevice,
-    private val uuid: UUID
+    private val client: BluetoothClient
 ) : BluetoothTransport {
 
-    private var socket: BluetoothSocket? = null
-
-    override fun connect() {
-        Log.d("BT", "connect() called: device=${device}, uuid=$uuid")
-        try {
-            socket = device.createRfcommSocketToServiceRecord(uuid)
-            Log.d("BT", "Socket created")
-            socket?.connect()
-            Log.d("BT", "Connected successfully")
-        } catch (e: Exception) {
-            Log.e("BT", "Connection failed", e)
-            throw e
-        }
+    override suspend fun connect() {
+        client.connect(
+            ConnectionTarget.Bluetooth(client.device)
+        )
     }
 
-    override fun disconnect() {
-        Log.d("BT", "disconnect() called")
-        try {
-            socket?.close()
-            Log.d("BT", "Disconnected")
-        } catch (e: Exception) {
-            Log.e("BT", "Disconnect failed", e)
-        }
+    override suspend fun disconnect() {
+        client.disconnect()
     }
 
-    override fun send(bytes: ByteArray) {
-        Log.d("BT", "send() called: ${bytes.decodeToString()}")
-        try {
-            socket?.outputStream?.write(bytes)
-            Log.d("BT", "Send success")
-        } catch (e: Exception) {
-            Log.e("BT", "Send failed", e)
-            throw e
-        }
+    override suspend fun send(bytes: ByteArray) {
+        client.send(bytes)
     }
 }

@@ -24,7 +24,7 @@ import com.example.rccarcontroller.Domain.Model.Command
  * @see com.example.rccarcontroller.Domain.Repository.ControllerRepository
  */
 interface ControllerUseCase {
-    fun connect(): Result<Unit>
-    fun disconnect(): Result<Unit>
-    fun send(command: Command): Result<Unit>
+    suspend fun connect(): Result<Unit>
+    suspend fun disconnect(): Result<Unit>
+    suspend fun send(command: Command): Result<Unit>
 }
