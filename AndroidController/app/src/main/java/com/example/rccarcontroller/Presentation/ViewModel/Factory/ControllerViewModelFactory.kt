@@ -70,7 +70,7 @@ class ControllerViewModelFactory(
         logger.info("VM-Factory Creating ControllerUseCaseImpl")
         val useCase = ControllerUseCaseImpl(repository, logger)
         logger.info("VM-Factory ControllerViewModel created")
-        return ControllerViewModel(useCase) as T
+        return ControllerViewModel(useCase, logger) as T
     }
 }
 

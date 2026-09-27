@@ -31,7 +31,7 @@ class BluetoothConfigRepository(
         logger.info("Config: load() called")
 
         //Jsonファイルの読み込みを行う
-        val json = context.assets.open("config.json")
+        val json = context.assets.open("Config.json")
             .bufferedReader()
             .readText()
 
