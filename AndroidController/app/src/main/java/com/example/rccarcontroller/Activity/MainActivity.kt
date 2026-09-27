@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    // ③ ensureBluetoothPermission はフィールドを使う
+    // Bluetoothの権限を取得しにいく
     private fun ensureBluetoothPermission(): Boolean {
         val granted = bluetoothPermissions.all {
             checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
         return granted
     }
 
-    // ④ 権限結果の受け取り
+    // 権限確認を行ったのち確認を行う
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -108,6 +108,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ControllerScreen(
+    // この部分で画面を組み立てる
     connectionState: ConnectionState,
     speed: Int,
     battery: Int?,
@@ -129,7 +130,7 @@ fun ControllerScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
 
-        // ① 通信状態表示部
+        // 通信状態表示部の組み立て
         ConnectionStatusSection(
             connectionState = connectionState,
             errorCode = errorCode,
@@ -137,14 +138,14 @@ fun ControllerScreen(
             onDisconnect = onDisconnect
         )
 
-        // ② 車体状態表示部
+        // 車体状態表示部の組み立て
         CarStatusSection(
             speed = speed,
             battery = battery,
             temperature = temperature
         )
 
-        // ③ コントローラー部
+        // コントローラー部の組み立て
         ControllerPadSection(
             onForward = onForward,
             onBackward = onBackward,
@@ -159,6 +160,7 @@ fun ControllerScreen(
 
 
 @Preview(showBackground = true)
+// ここではプレビューを組み立てる
 @Composable
 fun ControllerScreenPreview() {
     RcCarControllerTheme {
