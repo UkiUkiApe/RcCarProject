@@ -1,0 +1,54 @@
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+.idea/
+.vscode/
+*.iml
+
+# -------------------------
+# OS / Misc
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Raspberry Pi secrets
+# -------------------------
+id_rsa
+id_rsa.pub
+known_hosts
+wpa_supplicant.conf
+rfcomm.service
+
+# -------------------------
+# Environment variables
+# -------------------------
+.env
+
+# -------------------------
+# Build / Cache
+# -------------------------
+dist/
+build/
+*.egg-info/
+
+# -------------------------
+# Android (もし混在する場合)
+# -------------------------
+*.keystore
+*.jks
+local.properties
